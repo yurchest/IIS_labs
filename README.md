@@ -15,7 +15,7 @@ source .venv_IIS/bin/activate
 pip install -r requirements.txt
 ```
 
- Исследование данных
+# Исследование данных
 
 Находится в `./eda/eda.ipynb`. 
 
