@@ -1,0 +1,6 @@
+['num__age' 'num__balance' 'num__day' 'num__duration' 'cat__job'
+ 'cat__marital' 'cat__education' 'cat__default' 'cat__housing' 'cat__loan'
+ 'cat__contact' 'cat__month' 'cat__campaign' 'quantile__balance' 'poly__1'
+ 'poly__age' 'poly__balance' 'poly__age^2' 'poly__age balance'
+ 'poly__balance^2' 'kbins__age' 'kbins__balance' 'kbins__day'
+ 'kbins__duration']

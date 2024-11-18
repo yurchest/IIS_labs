@@ -2,3 +2,5 @@
 *.pkl
 .venv_IIS/
 /data/*
+/mlflow/*
+!/mlflow/start_mlflow_server.sh
