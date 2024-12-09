@@ -84,7 +84,10 @@ sh start_mlflow_server.sh - запуск mlflow
 
 # Описание сервиса предсказаний
 
+Итоговая структура проекта:
+
 ```
+.
 .
 ├── eda
 │   ├── eda.ipynb
@@ -97,12 +100,70 @@ sh start_mlflow_server.sh - запуск mlflow
 │   └── start_mlflow_server.sh
 ├── README.md
 ├── requirements.txt
-└── research
-    ├── column_names_best_model.txt
-    ├── column_names.txt
-    ├── metrics.png
-    ├── registered_models.png
-    ├── research.ipynb
-    ├── rfe_sfs_cols.txt
-    └── rfe_sfs_idx.txt
+├── research
+│   ├── column_names_best_model.txt
+│   ├── column_names.txt
+│   ├── metrics.png
+│   ├── MLmodel
+│   ├── registered_models.png
+│   ├── research.ipynb
+│   ├── rfe_sfs_cols.txt
+│   └── rfe_sfs_idx.txt
+└── services
+    ├── ml_service
+    │   ├── api_handler.py
+    │   ├── Dockerfile
+    │   ├──  .dockerignore
+    │   ├── main.py
+    │   └── requirements.txt
+    ├── models
+    │   └── get_model.py
+    └── test_requests
+        └── req.py
+```
+
+**Краткое описание сервиса**:
+1.  Директория `ml_service`
+    * `requirements.txt` - зависимости для сборки образа
+    *  `main.py` - FastAPI-приложение, обрабатывающее GET и POST запрос
+    * `.dockerignore` - исключения для Docker
+    * `api_handler.py` -   класс-обработчик запросов к API `FastAPIHandler`
+    * `Dockerfile` - файл для автоматизации сборки образа
+
+2. `models`
+    * `get_model.py` - скрипт , который подключается к mlflow, выгружает модель по её run_id и сохраняет ее в файл `model.pkl`
+
+**Команды для создания образа и запуска контейнера**
+
+```console
+foo@bar:~$ docker build . --tag estate_model:1
+foo@bar:~$ docker run -p 8001:8000 -v $(pwd)/../models:/models estate_model:1
+```
+
+
+**Проверка работоспособность сервиса**
+
+```python
+import requests
+import random
+
+params = {'cus_id': 12345}
+data = {
+    "age":          random.randint(1,80),
+    "job":          "housemaid",
+    "marital":	    "married",
+    "education":	"secondary",
+    "default":	    "no",
+    "balance":	    random.randint(1000,1000000),
+    "housing":	    "yes",
+    "loan":	        "no",
+    "contact":	    "cellular",
+    "day":	        random.randint(1,10),
+    "month":	    "aug",
+    "duration":     699,
+    "campaign":     2
+    } 
+
+response = requests.post('http://127.0.0.1:8001/api/prediction', params=params, json=data)
+print(response.json())
 ```
