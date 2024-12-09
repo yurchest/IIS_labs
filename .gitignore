@@ -4,3 +4,4 @@
 /data/*
 /mlflow/*
 !/mlflow/start_mlflow_server.sh
+__pycache__*

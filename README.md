@@ -82,3 +82,27 @@ sh start_mlflow_server.sh - запуск mlflow
 Лучшая модель была обучена на всей выборке с тэгом Production. Run ID = f42b92f0ac1b49b3b09f833cf02320a7
 ![alt text](./research/registered_models.png)
 
+# Описание сервиса предсказаний
+
+```
+.
+├── eda
+│   ├── eda.ipynb
+│   ├── graph1.png
+│   ├── graph2.png
+│   ├── graph3.png
+│   └── graph4.png
+├── .gitignore
+├── mlflow
+│   └── start_mlflow_server.sh
+├── README.md
+├── requirements.txt
+└── research
+    ├── column_names_best_model.txt
+    ├── column_names.txt
+    ├── metrics.png
+    ├── registered_models.png
+    ├── research.ipynb
+    ├── rfe_sfs_cols.txt
+    └── rfe_sfs_idx.txt
+```
