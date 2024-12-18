@@ -5,6 +5,15 @@
 
 Кредитный скоринг — это метод анализа, который банки и другие финансовые организации используют для оценки рисков при выдаче кредитов. Скоринговая оценка основывается на информации о кредитной истории клиента, его финансовом положении и других факторах
 
+Использованные технологии:
+
+* `scikit learn`
+* `mlflow`
+* `docker`
+* `fatapi`
+* `prometheus`
+* `grafana`
+
 # Запуск
 Для запуска проекта необходимо выполнить команды:
 ```
@@ -88,14 +97,13 @@ sh start_mlflow_server.sh - запуск mlflow
 
 ```
 .
-.
+├── data
 ├── eda
 │   ├── eda.ipynb
 │   ├── graph1.png
 │   ├── graph2.png
 │   ├── graph3.png
 │   └── graph4.png
-├── .gitignore
 ├── mlflow
 │   └── start_mlflow_server.sh
 ├── README.md
@@ -110,6 +118,10 @@ sh start_mlflow_server.sh - запуск mlflow
 │   ├── rfe_sfs_cols.txt
 │   └── rfe_sfs_idx.txt
 └── services
+    ├── compose.yml
+    ├── grafana
+    │   ├── Dashboard_1.json
+    │   └── grafana.png
     ├── ml_service
     │   ├── api_handler.py
     │   ├── Dockerfile
@@ -118,7 +130,13 @@ sh start_mlflow_server.sh - запуск mlflow
     │   └── requirements.txt
     ├── models
     │   └── get_model.py
-    └── test_requests
+    ├── prometheus
+    │   ├── bad_requests.png
+    │   ├── buckets.png
+    │   ├── prometheus.yml
+    │   └── rate_requests.png
+    └── requests
+        ├── Dockerfile
         └── req.py
 ```
 
@@ -166,4 +184,78 @@ data = {
 
 response = requests.post('http://127.0.0.1:8001/api/prediction', params=params, json=data)
 print(response.json())
+```
+
+# Мониторинг
+
+## 1. Prometheus
+
+Создан файл [prometheus.yml](https://github.com/yurchest/IIS_labs/blob/master/services/prometheus/prometheus.yml)
+
+```yaml
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  # Каждые 15 секунд будет запрашиваться сбор метрик. Если в течение 10 секунд 
+  # метрики не удастся собрать, запрос прервется по таймауту.
+
+scrape_configs:
+  # Конфигурация сборщика метрик
+  - job_name: 'scrapping-main-app'
+    # Пусть для метрик и схема подключения
+    metrics_path: /metrics
+    scheme: http
+
+    static_configs:
+    - targets:
+      - score-model:8000
+      # Адрес сервиса для сбора метрик
+```
+
+Этот файл конфигурации используется Prometheus для настройки параметров мониторинга и определения источников сбора метрик. 
+
+- **`global`**: Устанавливает общие параметры, такие как частота опроса (`scrape_interval`) и максимальное время ожидания ответа (`scrape_timeout`).
+- **`scrape_configs`**: Определяет отдельные задания для сбора метрик, их параметры и целевые узлы.
+- **`job_name`**: Уникальное имя задания.
+- **`metrics_path` и `scheme`**: Указывают путь и протокол для доступа к метрикам.
+- **`static_configs`**: Указывает список адресов целевых узлов, откуда собираются метрики.
+
+![alt text](./services/prometheus/buckets.png)
+![alt text](./services/prometheus/bad_requests.png)
+![alt text](./services/prometheus/rate_requests.png)
+
+Веб-интерфейс запускается по адресу `127.0.0.1:9090`
+
+## 2. Grafana
+
+
+**Grafana** — это платформа для визуализации данных и мониторинга систем в реальном времени. Она используется для создания интерактивных дашбордов, которые отображают метрики, собранные из различных источников данных (например, Prometheus, Elasticsearch, InfluxDB). 
+
+### Основные функции:
+- **Визуализация данных**: графики, диаграммы, таблицы.
+- **Мониторинг и алертинг**: настройка уведомлений при достижении определенных порогов метрик.
+- **Подключение к множеству источников**: поддержка множества баз данных и систем мониторинга.
+- **Кастомизация дашбордов**: возможность создавать настраиваемые панели под конкретные задачи.
+
+Grafana помогает анализировать данные, отслеживать производительность систем и принимать решения на основе визуализированных метрик.
+
+![alt text](./services/grafana/grafana.png)
+
+В дашборд были добавлены следующие графики:
+
+* Распределение по бакетам
+* Длительность запросов в секунду
+* Средняя нагруженоость поцессора (в секундах)
+* 5хх 4хх ответы
+* Частота запросов к сервису 
+
+Веб-интерфейс запускается по адресу `127.0.0.1:3000`
+
+# Сборка и запуск проекта
+
+Должны быть собраны образы сервисов `ml_service` и `requests`.
+
+```console
+foo@bar:~$ docker compose build
+foo@bar:~$ docker compose up
 ```
