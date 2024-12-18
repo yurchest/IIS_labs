@@ -18,5 +18,5 @@ EXPOSE 8000
 # Финальная команда - запуск сервера. Необходимо явно указать адрес хоста "0.0.0.0" и порта "8000", на которых будет запускаться сервер.
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]
 
-# docker build . --tag estate_model:1
-# docker run -p 8001:8000 -v $(pwd)/../models:/models estate_model:1
+# docker build . --tag score_model:1
+# docker run -p 8001:8000 -v $(pwd)/../models:/models score_model:1

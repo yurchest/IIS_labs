@@ -1,0 +1,39 @@
+name: iis_lab
+
+services:
+  score-model:
+    image: score_model:2
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./models:/models
+
+  requests:
+    image: request_service:1
+    deploy: 
+      replicas: 2
+      restart_policy:
+        condition: always
+        delay: 5s
+
+  prometheus:
+    image: prom/prometheus
+    ports:  
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    hostname: prometheus
+
+# prediction_metric_histogram_bucket
+# rate(http_requests_total{instance="score-model:8000"}[1m])
+# sum(rate(http_requests_total{status=~"4..|5.."}[5m])) by (status)
+
+  graphana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
